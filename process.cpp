@@ -12,12 +12,12 @@ fstream output;
 
 void sighandler(int sentsignal){
     signal(sentsignal,sighandler);
-    cout<< name+"received signal"<<sentsignal;
+    output<< name+" received signal "<<sentsignal;
     if(sentsignal==15){
-        cout<<",terminating gracefully\n";
+        output<<",terminating gracefully"<<endl;
         exit(0);
     }
-    cout<<"\n";
+    output<<endl;
 }
 int main(int argc , char * argv []){
     name="P";

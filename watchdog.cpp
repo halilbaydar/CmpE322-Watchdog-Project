@@ -18,6 +18,7 @@ using namespace std;
 void sigterm(int sigterm);
 ofstream outf;
 map<int, string> childids;
+int unnamedPipe;
 int main(int argc, char *argv[])
 {
     int numberofprocess;
@@ -34,25 +35,23 @@ int main(int argc, char *argv[])
         {
             nanosleep(&delta, &delta);
             execl("./process", "./process", process_output.c_str(), to_string(i + 1).c_str(), NULL);
-            cout << "fail";
+            outf << "fail";
         }
         else if (pid > 0)
         {
             childids[pid] = "P" + to_string(i + 1);
-            cout << "P" + to_string(i + 1) << "is started and it has a pid of" << pid << "\n";
+            outf << "P" + to_string(i + 1) << " is started and it has a pid of " << pid << "\n";
             continue;
         }
         else if (pid < 0)
         {
-            cout << "fail";
+            outf << "fail";
             return 1;
         }
     }
 
-    int unnamedPipe;
     char *myfifo = (char *)"/tmp/myfifo";
     unnamedPipe = open(myfifo, O_WRONLY);
-    cout << "halil";
 
     string s = "P0 ";
     s += to_string(getpid());
@@ -67,22 +66,22 @@ int main(int argc, char *argv[])
         tmp += to_string(it->first);
         write(unnamedPipe, tmp.c_str(), 30);
     }
-    while (1)
+    while (true)
     {
-        for(map<int,string>::iterator itemp=childids.begin(); itemp!=childids.end(); itemp++)
-            cout<<itemp->first<<" "<<itemp->second<<endl;
         pid_t result;
         result = wait(NULL);
         if (childids[result] == "P1")
         {
-            cout << "P1 is killed, all processes must be killed\n";
-            cout << "Restarting all processes";
+            outf << "P1 is killed, all processes must be killed\n";
+            nanosleep(&delta, &delta);
+            outf << "Restarting all processes\n";
             map<int, string>::iterator it;
-            it = childids.begin()++;
-            for (; it != childids.end(); it++)
+            it = childids.begin();
+            for (it++; it != childids.end(); it++)
             {
                 nanosleep(&delta, &delta);
-                kill(it->first, SIGTERM);
+                kill(it->first, 15);
+                nanosleep(&delta, &delta);
                 wait(NULL);
             }
             childids.clear();
@@ -97,11 +96,11 @@ int main(int argc, char *argv[])
                 if (pid > 0)
                 {
                     childids[pid] = "P" + to_string(i + 1);
-                    cout << "P" + to_string(i + 1) << "is started and it has a pid of" << pid << "\n";
+                    outf << "P" + to_string(i + 1) << " is started and it has a pid of" << pid << "\n";
                 }
                 else if (pid < 0)
                 {
-                    cout << "fail";
+                    outf << "fail";
                     return 1;
                 }
             }
@@ -115,9 +114,9 @@ int main(int argc, char *argv[])
         }
         else
         {
-            cout << childids.at(result) << " is killed";
-            cout << "Restarting " + childids.at(result);
-            string id=childids.at(result).substr(1);
+            outf << childids.at(result) << " is killed" << endl;
+            outf << "Restarting " + childids.at(result) << endl;
+            string id = childids.at(result).substr(1);
             int newchild = 0;
             if ((newchild = fork()) == 0)
             {
@@ -128,7 +127,7 @@ int main(int argc, char *argv[])
             tmp += to_string(newchild);
             write(unnamedPipe, tmp.c_str(), 30);
             childids.erase(result);
-            cout << childids.at(newchild) << " is killed and it has a pid of " << newchild;
+            outf << childids.at(newchild) << " is killed and it has a pid of " << newchild << endl;
         }
     }
     signal(SIGTERM, sigterm);
@@ -136,13 +135,13 @@ int main(int argc, char *argv[])
 }
 void sigterm(int segterm)
 {
-    cout << "Watchdog is terminating gracefully";
+    close(unnamedPipe);
+    outf << "Watchdog is terminating gracefully";
     map<int, string>::iterator it;
-    ;
     for (it = childids.begin(); it != childids.end(); it++)
     {
         nanosleep(&delta, &delta);
-        kill(it->first, SIGTERM);
+        kill(it->first, 15);
     }
     exit(0);
 }
