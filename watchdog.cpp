@@ -6,90 +6,143 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <signal.h>
 #include <iostream>
-#include <string.h> 
-
+#include <string.h>
+#include <csignal>
+#include <sstream>
+#include <fstream>
+#include <map>
+struct timespec delta = {0 /*secs*/, 500000000 /*nanosecs*/}; //0.5 sec
 using namespace std;
-ofstream outputf;
-int createChildProcesses(map<int,string> & childids,string process_output,int numberofprocess){
-    fstream outputstream;
-    pid_t pid=0;
-    int i;
-    for(i=0; i<numberofprocess; i++)
-        {   
-	        if ((pid = fork()) == 0) /* creating a child process */
-            {
-                execl("./process.out","./process.out",process_output,0,NULL);
-            }           
-            childids[pid]="P"+i;
-            string uu = "P"+to_string(i+1);
-            string ss=uu +" started and it has a pid of "; ss+=pid+"\n";
-            outputstream<<ss;
-        }
-        return 0;
-    outputstream.close();    
-    return 0;
-}
-
-int main(int argc, char  * argv [])
+void sigterm(int sigterm);
+ofstream outf;
+map<int, string> childids;
+int main(int argc, char *argv[])
 {
-
-    map<int,string>  childids;
     int numberofprocess;
-    numberofprocess=atoi(argv[1]);
+    numberofprocess = atoi(argv[1]);
     string process_output = argv[2];
     string watchdog_output = argv[3];
-    outputf.open(watchdog_output);
+    outf.open(watchdog_output);
+    pid_t pid;
+    int i;
+    for (i = 0; i < numberofprocess; i++)
+    {
+        pid = fork();
+        if (pid == 0) /* creating a child process */
+        {
+            nanosleep(&delta, &delta);
+            execl("./process", "./process", process_output.c_str(), to_string(i + 1).c_str(), NULL);
+            cout << "fail";
+        }
+        else if (pid > 0)
+        {
+            childids[pid] = "P" + to_string(i + 1);
+            cout << "P" + to_string(i + 1) << "is started and it has a pid of" << pid << "\n";
+            continue;
+        }
+        else if (pid < 0)
+        {
+            cout << "fail";
+            return 1;
+        }
+    }
 
-    createChildProcesses(childids,process_output,numberofprocess);
-    
     int unnamedPipe;
-    char * myfifo = (char*) "/tmp/myfifo";
-    mkfifo(myfifo, 0644);
-    char temp[30];
-    unnamedPipe = open(myfifo,O_WRONLY);
+    char *myfifo = (char *)"/tmp/myfifo";
+    unnamedPipe = open(myfifo, O_WRONLY);
+    cout << "halil";
 
-    string s= "P0 " +getpid();
-    
-    char watchdogid[s.size() + 1];
-    strcpy(watchdogid, s.c_str()); 
+    string s = "P0 ";
+    s += to_string(getpid());
+    char watchdogid[s.size()];
+    strcpy(watchdogid, s.c_str());
+    write(unnamedPipe, watchdogid, 30);
 
-    write(unnamedPipe,watchdogid,s.size()+1);    
-
-    for(int i=0; i<childids.size(); i++){
-        string tmp="P"+i;
-        tmp+=" "+childids[0];
-        char process_name_and_id[tmp.size()+1];
-        strcpy(process_name_and_id,tmp.c_str());
-        write(unnamedPipe,process_name_and_id,strlen(process_name_and_id)+1);
+    for (map<int, string>::iterator it = childids.begin(); it != childids.end(); it++)
+    {
+        string tmp = it->second;
+        tmp += " ";
+        tmp += to_string(it->first);
+        write(unnamedPipe, tmp.c_str(), 30);
     }
-    int status=-1;
-    while(1){
-        wait(&status);
-        if(status>0){
-
-        outputf<<"Restarting " + childids.at(status);
-        int childidtemp=0;
-        if((childidtemp=fork())==0){
-            execl("./process.out","./process.out",process_output,0,NULL);
+    while (1)
+    {
+        for(map<int,string>::iterator itemp=childids.begin(); itemp!=childids.end(); itemp++)
+            cout<<itemp->first<<" "<<itemp->second<<endl;
+        pid_t result;
+        result = wait(NULL);
+        if (childids[result] == "P1")
+        {
+            cout << "P1 is killed, all processes must be killed\n";
+            cout << "Restarting all processes";
+            map<int, string>::iterator it;
+            it = childids.begin()++;
+            for (; it != childids.end(); it++)
+            {
+                nanosleep(&delta, &delta);
+                kill(it->first, SIGTERM);
+                wait(NULL);
+            }
+            childids.clear();
+            pid_t pid = 0;
+            int i;
+            for (i = 0; i < numberofprocess; i++)
+            {
+                if ((pid = fork()) == 0) /* creating a child process */
+                {
+                    execl("./process", "./process", process_output.c_str(), to_string(i + 1).c_str(), NULL);
+                }
+                if (pid > 0)
+                {
+                    childids[pid] = "P" + to_string(i + 1);
+                    cout << "P" + to_string(i + 1) << "is started and it has a pid of" << pid << "\n";
+                }
+                else if (pid < 0)
+                {
+                    cout << "fail";
+                    return 1;
+                }
+            }
+            for (map<int, string>::iterator it = childids.begin(); it != childids.end(); it++)
+            {
+                string tmp = it->second;
+                tmp += " ";
+                tmp += to_string(it->first);
+                write(unnamedPipe, tmp.c_str(), 30);
+            }
         }
-        childids[childidtemp]=childids.at(status);
-        string tmp=childids.at(status)+" ";
-        childids.at(status)+=status;
-        childids.erase(status);
-
-        char process_name_and_id[tmp.size()+1];
-        strcpy(process_name_and_id,tmp.c_str());
-        write(unnamedPipe,process_name_and_id,strlen(process_name_and_id)+1);
+        else
+        {
+            cout << childids.at(result) << " is killed";
+            cout << "Restarting " + childids.at(result);
+            string id=childids.at(result).substr(1);
+            int newchild = 0;
+            if ((newchild = fork()) == 0)
+            {
+                execl("./process", "./process", process_output.c_str(), id.c_str(), NULL);
+            }
+            childids[newchild] = childids.at(result);
+            string tmp = childids.at(newchild) + " ";
+            tmp += to_string(newchild);
+            write(unnamedPipe, tmp.c_str(), 30);
+            childids.erase(result);
+            cout << childids.at(newchild) << " is killed and it has a pid of " << newchild;
         }
     }
-
-
-
-    outputf << "Watchdog is terminating gracefully";
-     
-    outputf.close();
+    signal(SIGTERM, sigterm);
     return 0;
+}
+void sigterm(int segterm)
+{
+    cout << "Watchdog is terminating gracefully";
+    map<int, string>::iterator it;
+    ;
+    for (it = childids.begin(); it != childids.end(); it++)
+    {
+        nanosleep(&delta, &delta);
+        kill(it->first, SIGTERM);
+    }
+    exit(0);
 }

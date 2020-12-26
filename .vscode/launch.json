@@ -9,12 +9,8 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": [
-                "3",
-                "/home/halil/Desktop/2017400297/src/testcases/watchdog/instructions_1.txt",
-                "/home/halil/Desktop/2017400297/src/testcases/process/instructions_1.txt", 
-                "/home/halil/Desktop/2017400297/src/testcases/watchdog/instructions_2.txt"
-            ],
+            //"args": ["5","processoutput.txt","watchdogoutput.txt"],
+            "args":["5","instructions.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -23,6 +19,7 @@
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
+                    //"text": "-gdb-set follow-fork-mode child",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
                 }
