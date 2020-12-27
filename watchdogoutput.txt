@@ -1,18 +1,13 @@
-P1 is started and it has a pid of 3466
-P2 is started and it has a pid of 3467
-P3 is started and it has a pid of 3468
-P4 is started and it has a pid of 3469
-P5 is started and it has a pid of 3470
 P3 is killed
 Restarting P3
-P3 is killed and it has a pid of 3547
+P3 is started and it has a pid of 3894
 P1 is killed, all processes must be killed
 Restarting all processes
-P1 is started and it has a pid of3618
-P2 is started and it has a pid of3619
-P3 is started and it has a pid of3620
-P4 is started and it has a pid of3621
-P5 is started and it has a pid of3622
+P1 is started and it has a pid of3895
+P2 is started and it has a pid of3896
+P3 is started and it has a pid of3897
+P4 is started and it has a pid of3898
+P5 is started and it has a pid of3899
 P5 is killed
 Restarting P5
-P5 is killed and it has a pid of 3725
+P5 is started and it has a pid of 3900

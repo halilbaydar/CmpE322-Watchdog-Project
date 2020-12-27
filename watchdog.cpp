@@ -13,7 +13,8 @@
 #include <sstream>
 #include <fstream>
 #include <map>
-struct timespec delta = {0 /*secs*/, 500000000 /*nanosecs*/}; //0.5 sec
+struct timespec delta = {0 /*secs*/, 300000000 /*nanosecs*/}; //0.5 sec.
+struct timespec deltaforexec = {0 /*secs*/, 200000000 /*nanosecs*/}; //0.5 sec
 using namespace std;
 void sigterm(int sigterm);
 ofstream outf;
@@ -33,14 +34,13 @@ int main(int argc, char *argv[])
         pid = fork();
         if (pid == 0) /* creating a child process */
         {
-            nanosleep(&delta, &delta);
+            sleep(1);
             execl("./process", "./process", process_output.c_str(), to_string(i + 1).c_str(), NULL);
-            outf << "fail";
+            cout << "fail";
         }
         else if (pid > 0)
         {
             childids[pid] = "P" + to_string(i + 1);
-            outf << "P" + to_string(i + 1) << " is started and it has a pid of " << pid << "\n";
             continue;
         }
         else if (pid < 0)
@@ -81,7 +81,6 @@ int main(int argc, char *argv[])
             {
                 nanosleep(&delta, &delta);
                 kill(it->first, 15);
-                nanosleep(&delta, &delta);
                 wait(NULL);
             }
             childids.clear();
@@ -91,6 +90,7 @@ int main(int argc, char *argv[])
             {
                 if ((pid = fork()) == 0) /* creating a child process */
                 {
+                    nanosleep(&deltaforexec,&deltaforexec);
                     execl("./process", "./process", process_output.c_str(), to_string(i + 1).c_str(), NULL);
                 }
                 if (pid > 0)
@@ -109,6 +109,7 @@ int main(int argc, char *argv[])
                 string tmp = it->second;
                 tmp += " ";
                 tmp += to_string(it->first);
+                nanosleep(&delta, &delta);
                 write(unnamedPipe, tmp.c_str(), 30);
             }
         }
@@ -127,7 +128,7 @@ int main(int argc, char *argv[])
             tmp += to_string(newchild);
             write(unnamedPipe, tmp.c_str(), 30);
             childids.erase(result);
-            outf << childids.at(newchild) << " is killed and it has a pid of " << newchild << endl;
+            outf << childids.at(newchild) << " is started and it has a pid of " << newchild << endl;
         }
     }
     signal(SIGTERM, sigterm);
@@ -137,11 +138,13 @@ void sigterm(int segterm)
 {
     close(unnamedPipe);
     outf << "Watchdog is terminating gracefully";
+    outf.close();
     map<int, string>::iterator it;
     for (it = childids.begin(); it != childids.end(); it++)
     {
         nanosleep(&delta, &delta);
         kill(it->first, 15);
+        //wait(NULL);
     }
     exit(0);
 }
