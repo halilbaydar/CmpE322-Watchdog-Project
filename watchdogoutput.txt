@@ -1,13 +1,13 @@
 P3 is killed
 Restarting P3
-P3 is started and it has a pid of 3894
+P3 is started and it has a pid of 7941
 P1 is killed, all processes must be killed
 Restarting all processes
-P1 is started and it has a pid of3895
-P2 is started and it has a pid of3896
-P3 is started and it has a pid of3897
-P4 is started and it has a pid of3898
-P5 is started and it has a pid of3899
+P1 is started and it has a pid of7943
+P2 is started and it has a pid of7944
+P3 is started and it has a pid of7945
+P4 is started and it has a pid of7946
+P5 is started and it has a pid of7947
 P5 is killed
 Restarting P5
-P5 is started and it has a pid of 3900
+P5 is started and it has a pid of 7948

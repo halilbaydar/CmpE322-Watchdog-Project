@@ -1,3 +1,7 @@
+/**
+ @author Halil Baydar
+ @date December 2020
+ */
 #include <bits/stdc++.h>
 #include <signal.h> 
 #include <stdio.h> 

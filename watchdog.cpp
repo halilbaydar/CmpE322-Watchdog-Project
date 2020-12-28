@@ -1,3 +1,12 @@
+/**
+ @author Halil Baydar
+ @date December 2020
+ */
+
+/*
+   The watchdog.cpp keeps track af all child processes and checks whether a child is died 
+   abnormaly or not. If it is, watchdog creates the child again
+*/
 #include <bits/stdc++.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -34,12 +43,12 @@ int main(int argc, char *argv[])
         pid = fork();
         if (pid == 0) /* creating a child process */
         {
-            sleep(1);
             execl("./process", "./process", process_output.c_str(), to_string(i + 1).c_str(), NULL);
             cout << "fail";
         }
         else if (pid > 0)
         {
+            sleep(1);
             childids[pid] = "P" + to_string(i + 1);
             continue;
         }
@@ -79,8 +88,8 @@ int main(int argc, char *argv[])
             it = childids.begin();
             for (it++; it != childids.end(); it++)
             {
-                nanosleep(&delta, &delta);
                 kill(it->first, 15);
+                nanosleep(&delta, &delta);
                 wait(NULL);
             }
             childids.clear();
@@ -90,11 +99,11 @@ int main(int argc, char *argv[])
             {
                 if ((pid = fork()) == 0) /* creating a child process */
                 {
-                    nanosleep(&deltaforexec,&deltaforexec);
                     execl("./process", "./process", process_output.c_str(), to_string(i + 1).c_str(), NULL);
                 }
                 if (pid > 0)
                 {
+                    sleep(1);
                     childids[pid] = "P" + to_string(i + 1);
                     outf << "P" + to_string(i + 1) << " is started and it has a pid of" << pid << "\n";
                 }
@@ -142,8 +151,8 @@ void sigterm(int segterm)
     map<int, string>::iterator it;
     for (it = childids.begin(); it != childids.end(); it++)
     {
-        nanosleep(&delta, &delta);
         kill(it->first, 15);
+        nanosleep(&delta, &delta);
         //wait(NULL);
     }
     exit(0);
