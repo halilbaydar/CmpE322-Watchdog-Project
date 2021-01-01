@@ -114,6 +114,7 @@ int main(int argc, char *argv[])
             nanosleep(&delta, &delta);
             outf << "Restarting all processes\n";
             vector<pair<string, int>>::iterator it;
+            sleep(1);
             it = childids2.begin();
             for (it++; it != childids2.end(); it++)
             {
@@ -188,8 +189,9 @@ int main(int argc, char *argv[])
 void sigterm(int segterm)
 {
     close(unnamedPipe);
-    cout << "Watchdog is terminating gracefully";
+    outf << "Watchdog is terminating gracefully";
     vector<pair<string, int>>::iterator it;
+    sleep(1);
     for (it = childids2.begin(); it != childids2.end(); it++)
     {
         kill(it->second, 15);

@@ -1,0 +1,65 @@
+P1 is started and it has a pid of 5830
+P2 is started and it has a pid of 5831
+P3 is started and it has a pid of 5832
+P4 is started and it has a pid of 5833
+P5 is started and it has a pid of 5834
+P6 is started and it has a pid of 5835
+P7 is started and it has a pid of 5836
+P8 is started and it has a pid of 5837
+P9 is started and it has a pid of 5839
+P10 is started and it has a pid of 5840
+P7 is killed
+Restarting P7
+P7 is started and it has a pid of 5841
+P1 is killed, all processes must be killed
+Restarting all processes
+P1 is started and it has a pid of 5842
+P2 is started and it has a pid of 5843
+P3 is started and it has a pid of 5844
+P4 is started and it has a pid of 5845
+P5 is started and it has a pid of 5846
+P6 is started and it has a pid of 5847
+P7 is started and it has a pid of 5848
+P8 is started and it has a pid of 5849
+P9 is started and it has a pid of 5850
+P10 is started and it has a pid of 5851
+P5 is killed
+Restarting P5
+P5 is started and it has a pid of 5852
+P3 is killed
+Restarting P3
+P3 is started and it has a pid of 5853
+P1 is killed, all processes must be killed
+Restarting all processes
+P1 is started and it has a pid of 5856
+P2 is started and it has a pid of 5857
+P3 is started and it has a pid of 5858
+P4 is started and it has a pid of 5860
+P5 is started and it has a pid of 5863
+P6 is started and it has a pid of 5864
+P7 is started and it has a pid of 5865
+P8 is started and it has a pid of 5866
+P9 is started and it has a pid of 5867
+P10 is started and it has a pid of 5868
+P5 is killed
+Restarting P5
+P5 is started and it has a pid of 5869
+P3 is killed
+Restarting P3
+P3 is started and it has a pid of 5870
+P1 is killed, all processes must be killed
+Restarting all processes
+P1 is started and it has a pid of 5871
+P2 is started and it has a pid of 5872
+P3 is started and it has a pid of 5873
+P4 is started and it has a pid of 5874
+P5 is started and it has a pid of 5875
+P6 is started and it has a pid of 5876
+P7 is started and it has a pid of 5877
+P8 is started and it has a pid of 5878
+P9 is started and it has a pid of 5879
+P10 is started and it has a pid of 5880
+P5 is killed
+Restarting P5
+P5 is started and it has a pid of 5881
+Watchdog is terminating gracefully
